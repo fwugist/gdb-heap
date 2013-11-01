@@ -3,4 +3,5 @@
 *.pyo
 gdb-heap-*.tar.bz2
 test_*
+.idea
 

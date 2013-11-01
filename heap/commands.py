@@ -338,7 +338,26 @@ class HeapArenaSelect(gdb.Command):
         glibc_arenas.cur_arena = glibc_arenas.arenas[arena_num]
         print "Arena set to %s" % glibc_arenas.cur_arena.address
 
+class HeapVisualize(gdb.Command):
+    'Visualize heap'
+    def __init__(self):
+        gdb.Command.__init__(self,
+                             "heap vis",
+                             gdb.COMMAND_DATA)
 
+    @need_debuginfo
+    def invoke(self, args, from_tty):
+        args = args.split()
+
+        filename = args[0]
+        start = int(args[1])
+        end = int(args[2])
+        step = int(args[3])
+
+        from heap.visualize import gen_mem_usage_image
+        ms = glibc_arenas.get_ms()
+        im = gen_mem_usage_image(ms.iter_chunks(), start, end, step, 1024)
+        im.save(filename)
 
 def register_commands():
     # Register the commands with gdb
@@ -354,6 +373,7 @@ def register_commands():
     HeapArenas()
     HeapArenaSelect()
     Hexdump()
+    HeapVisualize()
 
     from heap.cpython import register_commands as register_cpython_commands
     register_cpython_commands()
